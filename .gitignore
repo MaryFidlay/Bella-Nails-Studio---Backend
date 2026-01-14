@@ -1,0 +1,10 @@
+# Ignorar arquivos de ambiente
+.env
+
+# Node.js padrão (se for Node)
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
