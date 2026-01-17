@@ -51,7 +51,34 @@ const app = express();
 // Middleware
 
 app.use(express.json()); // para interpretar JSON nas requisições
-app.use(cors({ origin: "http://localhost:3000" })); // permite requests do frontend React
+// app.use(cors({ origin: "http://localhost:3000" })); // permite requests do frontend React
+// const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
+// app.use(cors({ origin: FRONTEND_URL }));
+
+const allowedOrigins = [
+    "http://localhost:3000", // desenvolvimento local
+    "https://bella-nails-studio.netlify.app" // Netlify
+  ];
+  
+  app.use(cors({
+    origin: function(origin, callback) {
+      if (!origin) return callback(null, true); // permite Postman ou curl
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true
+  }));
+  
+
+
+// Rota de teste simples
+app.get("/ping", (req, res) => {
+  console.log("Ping recebido ✅");
+  res.send("pong");
+});
 
 // Log de todas as requisições
 app.use((req, res, next) => {
