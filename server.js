@@ -17,70 +17,79 @@ const app = express();
 // Middleware para interpretar JSON
 app.use(express.json());
 
-// Configuração de CORS
+// -------------------------
+// CORS Middleware
+// -------------------------
 const allowedOrigins = [
-  "http://localhost:3000", // frontend local
-  "https://bella-nails-studio.netlify.app", // frontend Netlify
+  "http://localhost:3000",
+  "https://bella-nails-studio.netlify.app",
 ];
 
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
+  console.log("🌐 Incoming request from origin:", origin);
+
+  if (origin && allowedOrigins.some(o => origin.startsWith(o))) {
     res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS"
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
-    );
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Credentials", "true");
   }
 
+  // Handle preflight requests
   if (req.method === "OPTIONS") {
-    console.log(`🌐 Preflight request (OPTIONS) para ${req.url} respondido`);
+    console.log(`⚡ Preflight OPTIONS request for ${req.url} handled`);
     return res.sendStatus(204);
   }
 
   next();
 });
 
-// Rota de teste
-app.get("/ping", (req, res) => {
-  console.log("🏓 Ping recebido");
-  res.send("pong");
-});
-
-// Log de todas as requisições
+// -------------------------
+// Logging Middleware
+// -------------------------
 app.use((req, res, next) => {
-  console.log(`➡️ Requisição recebida: ${req.method} ${req.url}`);
+  console.log(`➡️ Request: ${req.method} ${req.url}`);
   if (Object.keys(req.body).length) {
-    console.log("📦 Corpo da requisição:", req.body);
+    console.log("📦 Request body:", req.body);
   }
   next();
 });
 
-// Rotas
+// -------------------------
+// Test Route
+// -------------------------
+app.get("/ping", (req, res) => {
+  console.log("🏓 Ping received");
+  res.send("pong");
+});
+
+// -------------------------
+// API Routes
+// -------------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/admin", adminRoutes);
 
-// Middleware de tratamento de erros
+// -------------------------
+// Error Handling Middleware
+// -------------------------
 app.use(errorHandler);
 
-// Conexão com MongoDB e start do servidor
+// -------------------------
+// Connect to MongoDB and Start Server
+// -------------------------
 const startServer = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI); 
-    console.log("✅ MongoDB conectado");
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("✅ MongoDB connected");
 
     const port = process.env.PORT || 5000;
     app.listen(port, () => {
-      console.log(`🚀 Server rodando na porta ${port}`);
+      console.log(`🚀 Server running on port ${port}`);
     });
   } catch (err) {
-    console.error("❌ Erro ao conectar no MongoDB:", err);
+    console.error("❌ Error connecting to MongoDB:", err);
   }
 };
 
