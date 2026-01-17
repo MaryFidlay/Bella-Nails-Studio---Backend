@@ -55,24 +55,33 @@ app.use(express.json()); // para interpretar JSON nas requisições
 // const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 // app.use(cors({ origin: FRONTEND_URL }));
 
-const allowedOrigins = [
-    "http://localhost:3000", // desenvolvimento local
-    "https://bella-nails-studio.netlify.app" // Netlify
-  ];
-  
-  app.use(cors({
-    origin: function(origin, callback) {
-      if (!origin) return callback(null, true); // permite Postman ou curl
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true
-  }));
-  
+// const allowedOrigins = [
+//   "http://localhost:3000", // desenvolvimento local
+//   "https://bella-nails-studio.netlify.app", // Netlify
+// ];
 
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       if (!origin) return callback(null, true); // permite Postman ou curl
+//       if (allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   })
+// );
+
+const corsOptions = {
+  origin: ["http://localhost:3000", "https://bella-nails-studio.netlify.app"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 // Rota de teste simples
 app.get("/ping", (req, res) => {
