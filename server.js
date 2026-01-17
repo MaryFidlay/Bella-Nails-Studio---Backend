@@ -74,14 +74,39 @@ app.use(express.json()); // para interpretar JSON nas requisições
 //   })
 // );
 
-const corsOptions = {
-  origin: ["http://localhost:3000", "https://bella-nails-studio.netlify.app"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
+// const corsOptions = {
+//   origin: ["http://localhost:3000", "https://bella-nails-studio.netlify.app"],
+//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//   allowedHeaders: ["Content-Type", "Authorization"],
+//   credentials: true,
+// };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+
+const allowedOrigins = [
+  "http://localhost:3000", // frontend local
+  "https://bella-nails-studio.netlify.app", // frontend no Netlify
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS"
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204); // preflight responde OK
+  }
+  next();
+});
 
 // Rota de teste simples
 app.get("/ping", (req, res) => {
