@@ -1,38 +1,3 @@
-// require('dotenv').config();
-// const express = require('express');
-// const mongoose = require('mongoose');
-// const cors = require('cors');
-
-// const authRoutes = require('./routes/auth');
-// const appointmentRoutes = require('./routes/schedule');
-// const adminRoutes = require('./routes/admin');
-// const errorHandler = require('./middleware/error');
-
-// const app = express();
-
-// Middleware
-// app.use(cors({ origin: 'http://localhost:3000' }));
-// app.use(express.json());
-
-// Routes
-// app.use('/api/auth', authRoutes);
-// app.use('/api/appointments', appointmentRoutes);
-// app.use('/api/admin', adminRoutes);
-
-// Error middleware
-// app.use(errorHandler);
-
-// Connect to MongoDB
-// mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-// .then(() => {
-//     console.log('MongoDB connected');
-//     app.listen(process.env.PORT || 5000, () => {
-//         console.log(`Server running on port ${process.env.PORT || 5000}`);
-//     });
-// })
-// .catch(err => console.error(err));
-
-// server.js
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
@@ -43,49 +8,18 @@ const authRoutes = require("./routes/auth");
 const appointmentRoutes = require("./routes/schedule");
 const adminRoutes = require("./routes/admin");
 
-// Middleware de erro (opcional)
+// Middleware de erro
 const errorHandler = require("./middleware/error");
 
 const app = express();
 
-// Middleware
+// Middleware para interpretar JSON
+app.use(express.json());
 
-app.use(express.json()); // para interpretar JSON nas requisições
-// app.use(cors({ origin: "http://localhost:3000" })); // permite requests do frontend React
-// const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
-// app.use(cors({ origin: FRONTEND_URL }));
-
-// const allowedOrigins = [
-//   "http://localhost:3000", // desenvolvimento local
-//   "https://bella-nails-studio.netlify.app", // Netlify
-// ];
-
-// app.use(
-//   cors({
-//     origin: function (origin, callback) {
-//       if (!origin) return callback(null, true); // permite Postman ou curl
-//       if (allowedOrigins.includes(origin)) {
-//         callback(null, true);
-//       } else {
-//         callback(new Error("Not allowed by CORS"));
-//       }
-//     },
-//     credentials: true,
-//   })
-// );
-
-// const corsOptions = {
-//   origin: ["http://localhost:3000", "https://bella-nails-studio.netlify.app"],
-//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//   allowedHeaders: ["Content-Type", "Authorization"],
-//   credentials: true,
-// };
-
-// app.use(cors(corsOptions));
-
+// Configura CORS para localhost e Netlify
 const allowedOrigins = [
-  "http://localhost:3000", // frontend local
-  "https://bella-nails-studio.netlify.app", // frontend no Netlify
+  "http://localhost:3000",
+  "https://bella-nails-studio.netlify.app",
 ];
 
 app.use((req, res, next) => {
@@ -102,28 +36,20 @@ app.use((req, res, next) => {
     );
     res.setHeader("Access-Control-Allow-Credentials", "true");
   }
+
+  // Preflight responde OK
   if (req.method === "OPTIONS") {
-    return res.sendStatus(204); // preflight responde OK
+    return res.sendStatus(204);
   }
+
   next();
 });
 
-// Rota de teste simples
-app.get("/ping", (req, res) => {
-  console.log("Ping recebido ✅");
-  res.send("pong");
-});
-
-// Log de todas as requisições
+// Log de todas as requisições (opcional)
 app.use((req, res, next) => {
   console.log("➡️ Requisição recebida:", req.method, req.url);
   console.log("Corpo da requisição:", req.body);
   next();
-});
-
-app.get("/ping", (req, res) => {
-  console.log("Ping received");
-  res.send("pong");
 });
 
 // Rotas
@@ -131,13 +57,13 @@ app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/admin", adminRoutes);
 
-// Middleware de tratamento de erros
+// Middleware de erro
 app.use(errorHandler);
 
 // Conexão com MongoDB
 const startServer = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI); // sem opções antigas
+    await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ MongoDB connected");
 
     const port = process.env.PORT || 5001;
