@@ -2,23 +2,24 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 
-// Import das rotas
+// Import routes
 const authRoutes = require("./routes/auth");
 const appointmentRoutes = require("./routes/schedule");
 const adminRoutes = require("./routes/admin");
 
-// Middleware de erro
+// Error handler middleware
 const errorHandler = require("./middleware/error");
 
 const app = express();
 
-// Middleware para interpretar JSON
+// -------------------------
+// Middleware to parse JSON
+// -------------------------
 app.use(express.json());
 
 // -------------------------
-// CORS Middleware
+// Fixed CORS Middleware
 // -------------------------
 const allowedOrigins = [
   "http://localhost:3000",
@@ -29,16 +30,23 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
   console.log("🌐 Incoming request from origin:", origin);
 
-  if (origin && allowedOrigins.some(o => origin.startsWith(o))) {
+  if (origin && allowedOrigins.some(o => origin === o || origin.startsWith(o))) {
     res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS"
+    );
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization"
+    );
     res.setHeader("Access-Control-Allow-Credentials", "true");
+  } else if (origin) {
+    console.warn("❌ Blocked CORS request from origin:", origin);
   }
 
-  // Handle preflight requests
+  // Handle preflight OPTIONS request
   if (req.method === "OPTIONS") {
-    console.log(`⚡ Preflight OPTIONS request for ${req.url} handled`);
     return res.sendStatus(204);
   }
 
@@ -57,7 +65,7 @@ app.use((req, res, next) => {
 });
 
 // -------------------------
-// Test Route
+// Test route
 // -------------------------
 app.get("/ping", (req, res) => {
   console.log("🏓 Ping received");
