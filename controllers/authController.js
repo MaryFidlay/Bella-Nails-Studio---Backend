@@ -2,29 +2,10 @@ const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// exports.register = async (req, res, next) => {
-//   console.log("BODY RECEBIDO:", req.body); // << Adicione isto
-//     try {
-//         const { name, email, phone, password } = req.body;
-
-//         const existingUser = await User.findOne({ email });
-//         if (existingUser) return res.status(400).json({ message: 'Email already registered!' });
-
-//         const hashedPassword = await bcrypt.hash(password, 10);
-//         const user = new User({ name, email, phone, password: hashedPassword });
-//         await user.save();
-
-//         res.status(201).json({ message: 'Registration successful!' });
-//     } catch (err) {
-//         next(err);
-//     }
-// };
-
-//
 
 exports.register = async (req, res, next) => {
-  console.log("✅ /register endpoint hit"); // log que endpoint foi chamado
-  console.log("Body received:", req.body); // log do que chegou
+  console.log("✅ /register endpoint hit"); 
+  console.log("Body received:", req.body); 
 
   try {
     const { name, email, phone, password } = req.body;
@@ -37,10 +18,10 @@ exports.register = async (req, res, next) => {
     const user = new User({ name, email, phone, password: hashedPassword });
     await user.save();
 
-    console.log("User saved successfully"); // log do sucesso
+    console.log("User saved successfully"); 
     res.status(201).json({ message: "Registration successful!" });
   } catch (err) {
-    console.error("Registration error:", err); // log de erro
+    console.error("Registration error:", err); 
     next(err);
   }
 };

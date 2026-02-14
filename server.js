@@ -1,71 +1,65 @@
-// server.js
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 
-// Import routes
+// Import das rotas
 const authRoutes = require("./routes/auth");
 const appointmentRoutes = require("./routes/schedule");
 const adminRoutes = require("./routes/admin");
 
-// Error handler middleware
+// Middleware de erro
 const errorHandler = require("./middleware/error");
 
 const app = express();
 
 // -------------------------
-// Middleware to parse JSON
+// Middleware para parse JSON
 // -------------------------
 app.use(express.json());
 
 // -------------------------
-// Fixed CORS Middleware
+// Middleware CORS
 // -------------------------
 const allowedOrigins = [
-  "http://localhost:3000",
-  "https://bella-nails-studio.netlify.app",
+  "http://localhost:3000", // frontend local
+  "https://bella-nails-studio.netlify.app" // frontend deploy
 ];
 
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  console.log("🌐 Incoming request from origin:", origin);
+  let origin = req.headers.origin;
+  if (origin) origin = origin.replace(/\/$/, ""); // remove trailing slash
 
-  if (origin && allowedOrigins.some(o => origin === o || origin.startsWith(o))) {
+  if (origin && allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      "GET, POST, PUT, DELETE, OPTIONS"
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      "Content-Type, Authorization"
-    );
+    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     res.setHeader("Access-Control-Allow-Credentials", "true");
   } else if (origin) {
-    console.warn("❌ Blocked CORS request from origin:", origin);
+    console.warn("❌ CORS blocked request from origin:", origin);
   }
 
-  // Handle preflight OPTIONS request
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(204);
-  }
-
+  if (req.method === "OPTIONS") return res.sendStatus(204);
   next();
 });
+
+// -------------------------
+// Rota para favicon
+// -------------------------
+app.get("/favicon.ico", (req, res) => res.status(204).end());
 
 // -------------------------
 // Logging Middleware
 // -------------------------
 app.use((req, res, next) => {
   console.log(`➡️ Request: ${req.method} ${req.url}`);
-  if (Object.keys(req.body).length) {
+  if (req.body && Object.keys(req.body).length) {
     console.log("📦 Request body:", req.body);
   }
   next();
 });
 
 // -------------------------
-// Test route
+// Rota de teste
 // -------------------------
 app.get("/ping", (req, res) => {
   console.log("🏓 Ping received");
@@ -73,19 +67,19 @@ app.get("/ping", (req, res) => {
 });
 
 // -------------------------
-// API Routes
+// Rotas API
 // -------------------------
 app.use("/api/auth", authRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/admin", adminRoutes);
 
 // -------------------------
-// Error Handling Middleware
+// Middleware de erro
 // -------------------------
 app.use(errorHandler);
 
 // -------------------------
-// Connect to MongoDB and Start Server
+// Conexão MongoDB e inicialização do servidor
 // -------------------------
 const startServer = async () => {
   try {

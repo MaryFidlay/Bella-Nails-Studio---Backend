@@ -15,15 +15,16 @@ const createAdmin = async () => {
         password: "admin123",
         role: "admin",
       });
-      console.log("✅ Admin criado com sucesso!");
+      console.log("✅ Admin created successfully!");
     } else {
-      console.log("⚠️ Admin já existe");
+      console.log("⚠️ Admin already exists");
     }
-
+    
     mongoose.disconnect();
-  } catch (err) {
-    console.error("Erro ao criar admin:", err);
-  }
+    } catch (err) {
+      console.error("Error creating admin:", err);
+    }
+    
 };
 
 createAdmin();
